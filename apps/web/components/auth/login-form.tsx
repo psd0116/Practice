@@ -8,12 +8,39 @@ export function LoginForm() {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // 간단한 유효성 검사 (실제로는 서버 통신 필요)
-    if (email && password) {
-      login(email);
+    setError("");
+    setIsLoading(true);
+
+    try {
+      // 1. 백엔드에 로그인 요청 보내기
+      const response = await fetch("http://localhost:4000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      // 2. 응답 확인
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "로그인에 실패했습니다.");
+      }
+
+      // 3. 성공 시 토큰 저장 및 로그인 처리
+      const data = await response.json();
+      localStorage.setItem("access_token", data.access_token);
+      // login 함수에 이메일, 이름, 프로필 이미지 전달
+      login(data.user.email, data.user.username, data.user.profileImage);
+    } catch (err: any) {
+      setError(err.message || "로그인 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -56,12 +83,18 @@ export function LoginForm() {
           </div>
         </div>
 
+        {/* 에러 메시지 표시 */}
+        {error && (
+          <div className="text-red-500 text-sm text-center">{error}</div>
+        )}
+
         <div>
           <button
             type="submit"
-            className="group relative flex w-full justify-center rounded-md bg-black px-3 py-3 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+            disabled={isLoading}
+            className="group relative flex w-full justify-center rounded-md bg-black px-3 py-3 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 disabled:opacity-50"
           >
-            로그인
+            {isLoading ? "로그인 중..." : "로그인"}
           </button>
         </div>
       </form>

@@ -29,7 +29,7 @@ export function PostEditor({
 
   useEffect(() => {
     // Load categories from localStorage
-    const saved = localStorage.getItem("void_categories");
+    const saved = localStorage.getItem("user_categories");
     if (saved) {
       setAvailableCategories(JSON.parse(saved));
     } else {
@@ -125,7 +125,7 @@ export function PostEditor({
             ) : (
               <Save className="w-4 h-4" />
             )}
-            {isDiditing ? "수정 완료" : "발행"}
+            {isDiditing ? "수정 완료" : "저장"}
           </button>
         </div>
       </form>

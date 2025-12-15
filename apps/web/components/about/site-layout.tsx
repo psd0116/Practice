@@ -7,7 +7,7 @@ import { useAuth } from "@/context/auth-context";
 
 export function SiteLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, logout, user } = useAuth();
   const isAboutPage = pathname === "/about";
   const isLandingPage = pathname === "/";
   // 마이 페이지 관련 경로인지 확인 (board/*)
@@ -40,21 +40,25 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
           <ThemeToggle />
           
           {isLoggedIn ? (
-            isMyBoardPage ? (
-              <button 
-                onClick={logout}
-                className="bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-full hover:opacity-80 transition text-sm font-medium"
-              >
-                로그아웃
-              </button>
-            ) : (
-              <Link 
-                href="/board" 
-                className="bg-primary text-primary-foreground px-4 py-2 rounded-full hover:opacity-80 transition text-sm font-medium"
-              >
-                마이페이지
-              </Link>
-            )
+            <div className="flex items-center gap-4">
+
+              
+              {isMyBoardPage ? (
+                <button 
+                  onClick={logout}
+                  className="bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-full hover:opacity-80 transition text-sm font-medium"
+                >
+                  로그아웃
+                </button>
+              ) : (
+                <Link 
+                  href="/board" 
+                  className="bg-primary text-primary-foreground px-4 py-2 rounded-full hover:opacity-80 transition text-sm font-medium"
+                >
+                  마이페이지
+                </Link>
+              )}
+            </div>
           ) : (
             <Link 
               href="/login" 

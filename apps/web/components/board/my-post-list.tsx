@@ -5,142 +5,70 @@ import Link from "next/link";
 import { MessageSquare, Heart, MoreHorizontal, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// 더미 게시글 데이터 (댓글 데이터 + 카테고리 추가)
-const MY_POSTS = [
-  { 
-    id: 1, 
-    title: "Void* 커뮤니티 오픈 소식", 
-    content: "드디어 Void* 커뮤니티가 오픈했습니다. 많은 관심 부탁드립니다.", 
-    date: "2025.06.01", 
-    likes: 42, 
-    comments: 12,
-    category: "Notices",
-    recentComments: [
-      { user: "user1", text: "오픈 축하드립니다! 🎉" },
-      { user: "dev_king", text: "디자인이 정말 멋지네요." },
-      { user: "newbie", text: "앞으로 자주 이용하겠습니다." }
-    ]
-  },
-  { 
-    id: 2, 
-    title: "Next.js 15 마이그레이션 후기", 
-    content: "App Router로 전환하면서 겪었던 시행착오들을 공유합니다.", 
-    date: "2025.05.28", 
-    likes: 35, 
-    comments: 8,
-    category: "Dev",
-    recentComments: [
-      { user: "frontend_wiz", text: "좋은 정보 감사합니다." },
-      { user: "react_lover", text: "서버 컴포넌트 어렵네요 ㅠㅠ" },
-      { user: "nextjs_fan", text: "혹시 문서 링크 공유 가능할까요?" }
-    ]
-  },
-  { 
-    id: 3, 
-    title: "효율적인 상태 관리를 위한 전략", 
-    content: "Context API와 Zustand를 비교해보았습니다.", 
-    date: "2025.05.25", 
-    likes: 28, 
-    comments: 15,
-    category: "Dev",
-    recentComments: [
-      { user: "redux_hater", text: "Zustand가 최고죠" },
-      { user: "context_api", text: "간단한건 Context로 충분함" },
-      { user: "state_master", text: "Jotai도 한번 써보세요" }
-    ]
-  },
-  { 
-    id: 4, 
-    title: "모던 웹 디자인 트렌드 분석", 
-    content: "2025년 주목해야 할 UI/UX 트렌드는 무엇일까요?", 
-    date: "2025.05.20", 
-    likes: 55, 
-    comments: 20,
-    category: "Design",
-    recentComments: [
-      { user: "designer_kim", text: "글래스모피즘은 이제 끝났나요?" },
-      { user: "ui_ux", text: "미니멀리즘이 다시 대세인 듯" },
-      { user: "trend_watch", text: "잘 읽었습니다!" }
-    ]
-  },
-  { 
-    id: 5, 
-    title: "TypeScript 꿀팁 모음", 
-    content: "자주 사용하는 유틸리티 타입 5가지를 소개합니다.", 
-    date: "2025.05.15", 
-    likes: 19, 
-    comments: 4,
-    category: "Dev",
-    recentComments: [
-      { user: "ts_beginner", text: "Omit 타입 유용하네요" },
-      { user: "any_script", text: "전 그냥 any 씁니다 ㅋㅋ" },
-      { user: "senior_dev", text: "제네릭 설명도 부탁드려요" }
-    ]
-  },
-  { 
-    id: 6, 
-    title: "개발자 점심 메뉴 추천 봇 만들기", 
-    content: "Python으로 간단하게 크롤링 봇을 만들어봅시다.", 
-    date: "2025.05.10", 
-    likes: 62, 
-    comments: 30,
-    category: "Daily",
-    recentComments: [
-      { user: "hungry_dev", text: "오늘 점심 뭐 먹지..." },
-      { user: "bot_maker", text: "슬랙 연동도 되나요?" },
-      { user: "lunch_time", text: "코드 공유 감사합니다" }
-    ]
-  },
-  { 
-    id: 7, 
-    title: "숨겨진 일상의 발견", 
-    content: "가끔은 코딩에서 벗어나 산책을 즐겨보세요.", 
-    date: "2025.05.05", 
-    likes: 10, 
-    comments: 2,
-    category: "Daily",
-    recentComments: [
-      { user: "walker", text: "산책하니 머리가 맑아지네요" },
-      { user: "nature", text: "사진 멋집니다" },
-      { user: "coding_machine", text: "전 코딩이 쉬는 건데요?" }
-    ]
-  },
-  { 
-    id: 8, 
-    title: "새벽 코딩의 매력", 
-    content: "고요한 밤에 집중력이 높아지는 이유.", 
-    date: "2025.05.01", 
-    likes: 45, 
-    comments: 18,
-    category: "Daily",
-    recentComments: [
-      { user: "night_owl", text: "새벽 3시가 피크죠" },
-      { user: "morning_person", text: "전 아침형 인간이라..." },
-      { user: "coffee_addict", text: "오늘도 밤샘 각" }
-    ]
-  },
-];
+
 
 export function MyPostList() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [categories, setCategories] = useState<string[]>(["All", "Notices", "Dev", "Design", "Daily"]);
+  const [posts, setPosts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // 로컬 스토리지에서 카테고리 불러오기
   useEffect(() => {
-    const savedCategories = localStorage.getItem("void_categories");
+    const savedCategories = localStorage.getItem("user_categories");
     if (savedCategories) {
       const parsed = JSON.parse(savedCategories);
       setCategories(["All", ...parsed]);
     }
   }, []);
+
+  // 내 글 불러오기
+  useEffect(() => {
+    const fetchMyPosts = async () => {
+      try {
+        const token = localStorage.getItem("access_token");
+        if (!token) return;
+
+        const response = await fetch("http://localhost:4000/posts/my", {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch my posts");
+        const data = await response.json();
+
+        // 매핑
+        const mappedPosts = data.map((post: any) => ({
+          id: post.id,
+          title: post.title,
+          content: post.content,
+          date: new Date(post.createdAt).toLocaleDateString(),
+          likes: 0,
+          comments: 0,
+          category: post.category,
+          recentComments: [] // 댓글 기능 미구현
+        }));
+
+        setPosts(mappedPosts);
+      } catch (error) {
+        console.error("Error fetching my posts:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMyPosts();
+  }, []);
   
   // 카테고리 필터링 + 확장 여부에 따른 필터링
   const filteredByCategory = selectedCategory === "All" 
-    ? MY_POSTS 
-    : MY_POSTS.filter(post => post.category === selectedCategory);
-    // 보여줄 게시글 필터링
-    const displayedPosts = isExpanded ? filteredByCategory : filteredByCategory.slice(0, 6);
+    ? posts 
+    : posts.filter(post => post.category === selectedCategory);
+    
+  // 보여줄 게시글 필터링
+  const displayedPosts = isExpanded ? filteredByCategory : filteredByCategory.slice(0, 6);
   
     return (
       <main className="md:col-span-8 lg:col-span-9">
@@ -270,7 +198,7 @@ export function MyPostList() {
       </div>
 
       {/* 확장 버튼 */}
-      {MY_POSTS.length > 6 && (
+      {filteredByCategory.length > 6 && (
         <div className="mt-8 text-center">
           <button
             onClick={() => setIsExpanded(!isExpanded)}

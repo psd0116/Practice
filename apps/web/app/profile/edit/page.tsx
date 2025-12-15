@@ -1,159 +1,201 @@
 "use client";
 
+import { ProfileImageUpload } from "@/components/profile/profile-image-upload";
+import Link from "next/link";
+import { ChevronLeft, Plus, X } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, Plus, X, Camera, Save } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 
 export default function ProfileEditPage() {
-  const router = useRouter();
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   
-  // Mock Stats
-  const [nickname, setNickname] = useState(user?.name || "User");
-  const [email] = useState(user?.email || "user@example.com");
+  // 폼 상태
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  
+  // 카테고리 상태 (로컬 스토리지 사용 예시)
   const [categories, setCategories] = useState<string[]>([]);
   const [newCategory, setNewCategory] = useState("");
+  
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Load categories from localStorage
+  // 초기 데이터 로드
   useEffect(() => {
-    const savedCategories = localStorage.getItem("void_categories");
-    if (savedCategories) {
-      setCategories(JSON.parse(savedCategories));
-    } else {
-      // Default initial categories
-      setCategories(["Daily", "Dev", "Thoughts"]);
+    if (user) {
+      setUsername(user.name);
+      setEmail(user.email);
     }
-  }, []);
+    
+    // 카테고리 로드 (예: localStorage 'user_categories')
+    const storedCats = localStorage.getItem("user_categories");
+    if (storedCats) {
+      setCategories(JSON.parse(storedCats));
+    } else {
+      setCategories(["자유", "질문", "후기"]);
+    }
+  }, [user]);
 
-  // Save categories to localStorage
-  const saveCategories = (cats: string[]) => {
-    setCategories(cats);
-    localStorage.setItem("void_categories", JSON.stringify(cats));
+  // 프로필 정보 저장
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) return;
+
+      // 변경된 내용만 전송 (여기서는 간단히 다 보냄)
+      const response = await fetch("http://localhost:4000/users/me", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          username,
+          email
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("프로필 업데이트 실패");
+      }
+
+      // Context 업데이트
+      updateUser({ name: username, email: email });
+      alert("회원 정보가 수정되었습니다.");
+    } catch (error) {
+      console.error(error);
+      alert("저장 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  // 카테고리 추가/삭제 handler
   const handleAddCategory = () => {
     if (!newCategory.trim()) return;
-    if (categories.includes(newCategory.trim())) return;
+    if (categories.includes(newCategory.trim())) {
+      alert("이미 존재하는 카테고리입니다.");
+      return;
+    }
     
-    const updated = [...categories, newCategory.trim()];
-    saveCategories(updated);
+    const nextCats = [...categories, newCategory.trim()];
+    setCategories(nextCats);
+    localStorage.setItem("user_categories", JSON.stringify(nextCats));
     setNewCategory("");
   };
 
-  const handleDeleteCategory = (catToDelete: string) => {
-    const updated = categories.filter(c => c !== catToDelete);
-    saveCategories(updated);
-  };
-
-  const handleSaveProfile = async () => {
-    // Mock save
-    await new Promise(resolve => setTimeout(resolve, 500));
-    router.push("/board");
+  const handleDeleteCategory = (cat: string) => {
+    const nextCats = categories.filter(c => c !== cat);
+    setCategories(nextCats);
+    localStorage.setItem("user_categories", JSON.stringify(nextCats));
   };
 
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <button 
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          게시판으로
-        </button>
-        <h1 className="text-2xl font-bold">프로필 수정</h1>
+    <div className="max-w-2xl mx-auto py-12 px-4">
+      <div className="mb-6">
+        <Link href="/board" className="flex items-center text-sm text-gray-500 hover:text-black dark:hover:text-white transition-colors">
+          <ChevronLeft className="w-4 h-4 mr-1" />
+          마이페이지로 돌아가기
+        </Link>
       </div>
 
       <div className="space-y-8">
-        {/* Profile Section */}
-        <section className="space-y-4">
-          <h2 className="text-lg font-bold border-b border-border pb-2">계정 설정</h2>
-          
-          <div className="flex items-center gap-6">
-            <div className="relative group cursor-pointer">
-              <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-transparent group-hover:border-primary transition-colors">
-                <span className="text-4xl">🐱</span>
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                <Camera className="w-6 h-6 text-white" />
-              </div>
+        {/* 1. 프로필 이미지 섹션 (카드 분리) */}
+        <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl p-8 shadow-sm">
+          <h2 className="text-xl font-bold mb-6">프로필 사진</h2>
+          <div className="flex flex-col items-center">
+            <ProfileImageUpload />
+          </div>
+        </div>
+
+        {/* 2. 회원 정보 수정 섹션 */}
+        <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl p-8 shadow-sm">
+          <h2 className="text-xl font-bold mb-6">회원 정보 수정</h2>
+          <form onSubmit={handleSaveProfile} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                닉네임 (Username)
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-black dark:focus:ring-white outline-none transition"
+              />
             </div>
             
-            <div className="flex-1 space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1 text-muted-foreground">닉네임</label>
-                <input 
-                  type="text" 
-                  value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
-                  className="w-full bg-muted/30 border border-border rounded-lg px-4 py-2 focus:outline-none focus:border-primary transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1 text-muted-foreground">이메일</label>
-                <input 
-                  type="email" 
-                  value={email}
-                  disabled
-                  className="w-full bg-muted/10 border border-border rounded-lg px-4 py-2 text-muted-foreground cursor-not-allowed"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                이메일
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-black dark:focus:ring-white outline-none transition"
+              />
             </div>
-          </div>
-        </section>
 
-        {/* Categories Section */}
-        <section className="space-y-4">
-          <h2 className="text-lg font-bold border-b border-border pb-2">나의 카테고리</h2>
-          <p className="text-sm text-muted-foreground">
-            게시글 분류를 위한 나만의 카테고리를 만들어보세요. 게시판의 탭으로 생성됩니다.
+            <div className="flex justify-end pt-4">
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="px-6 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full font-medium hover:opacity-80 transition disabled:opacity-50"
+              >
+                {isLoading ? "저장 중..." : "정보 수정 저장"}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* 3. 카테고리 관리 섹션 */}
+        <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl p-8 shadow-sm">
+          <h2 className="text-xl font-bold mb-6">카테고리 관리</h2>
+          <p className="text-sm text-gray-500 mb-6">
+            내 블로그/게시판에서 사용할 카테고리를 설정합니다.
           </p>
 
-          <div className="flex gap-2">
-            <input 
-              type="text" 
+          <div className="flex gap-2 mb-6">
+            <input
+              type="text"
+              placeholder="새 카테고리 이름"
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleAddCategory()}
-              placeholder="새 카테고리 이름..."
-              className="flex-1 bg-muted/30 border border-border rounded-lg px-4 py-2 focus:outline-none focus:border-primary transition-colors"
+              onKeyDown={(e) => e.key === 'Enter' && handleAddCategory()}
+              className="flex-1 px-4 py-2 rounded-lg border border-gray-200 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-black dark:focus:ring-white outline-none transition"
             />
-            <button 
+            <button
               onClick={handleAddCategory}
-              disabled={!newCategory.trim()}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="px-4 py-2 bg-gray-100 dark:bg-zinc-800 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-700 transition"
             >
               <Plus className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="flex flex-wrap gap-2 pt-2">
+          <div className="flex flex-wrap gap-2">
             {categories.map((cat) => (
-              <div key={cat} className="group flex items-center gap-2 pl-3 pr-2 py-1.5 bg-muted/50 rounded-full border border-border">
-                <span className="text-sm font-medium">{cat}</span>
+              <div 
+                key={cat}
+                className="group flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 dark:border-zinc-700 text-sm hover:border-black dark:hover:border-white transition-colors"
+              >
+                <span>{cat}</span>
                 <button 
                   onClick={() => handleDeleteCategory(cat)}
-                  className="p-0.5 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 text-muted-foreground hover:text-red-500 transition-colors"
+                  className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-3 h-3" />
                 </button>
               </div>
             ))}
+            
             {categories.length === 0 && (
-              <span className="text-sm text-muted-foreground italic py-2">아직 카테고리가 없습니다. 추가해보세요!</span>
+              <p className="text-sm text-gray-400 py-4">
+                등록된 카테고리가 없습니다.
+              </p>
             )}
           </div>
-        </section>
-
-        <div className="pt-8 flex justify-end">
-          <button 
-            onClick={handleSaveProfile}
-            className="flex items-center gap-2 px-8 py-3 rounded-full bg-foreground text-background font-bold hover:opacity-90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-          >
-            <Save className="w-4 h-4" />
-            변경사항 저장
-          </button>
         </div>
       </div>
     </div>

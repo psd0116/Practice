@@ -23,10 +23,13 @@ export function ProfileSection() {
         <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 border border-gray-200 dark:border-zinc-800 shadow-sm">
           <div className="flex flex-col items-center text-center">
             {/* 아바타 */}
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800 mb-4 flex items-center justify-center overflow-hidden">
-               <span className="text-3xl font-bold text-zinc-500 dark:text-zinc-400">
-                 {user.name.charAt(0).toUpperCase()}
-               </span>
+            {/* 아바타 */}
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800 mb-4 flex items-center justify-center overflow-hidden border-4 border-white dark:border-zinc-800 shadow-lg">
+               <img 
+                 src={user.profileImage || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + user.name}
+                 alt={user.name}
+                 className="w-full h-full object-cover"
+               />
             </div>
 
             <h2 className="text-xl font-bold mb-1">{user.name}</h2>

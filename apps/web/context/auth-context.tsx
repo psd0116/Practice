@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 
 interface AuthContextType {
   isLoggedIn: boolean;
-  user: { name: string; email: string } | null;
-  login: (email: string) => void;
+  user: { name: string; email: string; profileImage?: string | null } | null;
+  login: (email: string, username?: string, profileImage?: string | null) => void;
+  updateUser: (data: { name?: string; email?: string; profileImage?: string | null }) => void;
   logout: () => void;
   isLoading: boolean;
 }
@@ -15,7 +16,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; email: string; profileImage?: string | null } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
@@ -31,14 +32,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = (email: string) => {
-    // Mock Login
-    const mockUser = { name: "Void User", email };
+  const login = (email: string, username?: string, profileImage?: string | null) => {
+    // 로그인 시 받아온 정보로 유저 상태 설정
+    const newUser = { 
+      name: username || "User", 
+      email, 
+      profileImage: profileImage || null 
+    };
+    
     localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("user", JSON.stringify(mockUser));
+    localStorage.setItem("user", JSON.stringify(newUser));
     setIsLoggedIn(true);
-    setUser(mockUser);
+    setUser(newUser);
     router.push("/board");
+  };
+
+  const updateUser = (data: { name?: string; email?: string; profileImage?: string | null }) => {
+    if (!user) return;
+    
+    const updatedUser = { ...user, ...data };
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
   };
 
   const logout = () => {
@@ -50,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ isLoggedIn, user, login, logout, isLoading, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
