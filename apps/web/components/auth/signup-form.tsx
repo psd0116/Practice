@@ -19,10 +19,8 @@ export function SignupForm() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
-      <div className="w-full max-w-sm space-y-8">
-        
-        <div className="text-center">
+    <div className="w-full max-w-sm space-y-8">
+      <div className="text-center">
           <h2 className="text-3xl font-bold tracking-tight">회원가입</h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Void* 커뮤니티의 일원이 되어보세요
@@ -40,7 +38,7 @@ export function SignupForm() {
                 name="name"
                 type="text"
                 required
-                className="relative block w-full rounded-md border-0 py-3 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-black dark:bg-gray-900 dark:text-white dark:ring-gray-700 sm:text-sm sm:leading-6"
+              className="relative block w-full rounded-md border-0 py-3 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-black dark:bg-gray-900 dark:text-white dark:ring-gray-700 sm:text-sm sm:leading-6"
                 placeholder="사용자 이름 (닉네임)"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -94,7 +92,6 @@ export function SignupForm() {
           </Link>
         </div>
 
-      </div>
     </div>
   );
 }
