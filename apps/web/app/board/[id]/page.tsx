@@ -4,54 +4,61 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Edit, Trash2, Calendar, MessageSquare, Heart } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-
-// Mock Data (나중에 실제 데이터 패칭으로 교체)
-const MOCK_POST = {
-  id: 1,
-  title: "Void* 커뮤니티 오픈 소식",
-  content: `드디어 Void* 커뮤니티가 오픈했습니다. 많은 관심 부탁드립니다.
-  
-  이 공간은 개발자들을 위한 자유로운 소통 공간입니다. 
-  코드 조각, 개발 팁, 일상 이야기 무엇이든 환영합니다.
-  
-  Void*의 주요 특징:
-  - 미니멀한 디자인
-  - 개발자 친화적인 기능
-  - 자유로운 토론 문화
-  
-  앞으로 더 많은 기능이 추가될 예정이니 기대해주세요!`,
-  date: "2025.06.01",
-  author: "VoidMaster",
-  likes: 42,
-  comments: [
-    { id: 1, user: "user1", text: "오픈 축하드립니다! 🎉", date: "2025.06.01" },
-    { id: 2, user: "dev_king", text: "디자인이 정말 멋지네요.", date: "2025.06.02" },
-    { id: 3, user: "newbie", text: "앞으로 자주 이용하겠습니다.", date: "2025.06.02" }
-  ]
-};
+import { MOCK_COMMUNITY_POSTS } from "@/lib/mock-data";
+import { useAuth } from "@/context/auth-context";
 
 export default function PostDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const [post, setPost] = useState(MOCK_POST);
+  const { user } = useAuth(); // 현재 로그인한 사용자 정보 가져오기
+  const [post, setPost] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // 실제로는 params.id를 이용해 데이터를 가져와야 함
-    // 여기서는 로딩 시뮬레이션만
+    // URL의 id 파라미터로 게시글 찾기
+    const postId = Number(params.id);
+    const foundPost = MOCK_COMMUNITY_POSTS.find(p => p.id === postId);
+
+    if (foundPost) {
+      setPost(foundPost);
+    } else {
+      // 게시글을 찾지 못한 경우 (또는 기본 Mock 데이터 사용)
+      // 실제로는 404 페이지로 이동하거나 에러 메시지를 보여줘야 함
+      // 여기서는 데모를 위해 첫 번째 글을 보여주거나 null 처리
+    }
+    
+    // 로딩 시뮬레이션
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 500);
+    }, 300);
     return () => clearTimeout(timer);
   }, [params.id]);
 
   if (isLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-primary" />
+        <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
       </div>
     );
   }
+
+  if (!post) {
+    return (
+      <div className="container max-w-4xl mx-auto px-4 py-20 text-center">
+        <h2 className="text-2xl font-bold mb-4">게시글을 찾을 수 없습니다.</h2>
+        <button 
+          onClick={() => router.back()}
+          className="text-primary hover:underline"
+        >
+          돌아가기
+        </button>
+      </div>
+    );
+  }
+
+  // 작성자 본인 확인 (Mock 데이터에서는 간단히 이름 비교 또는 데모용으로 항상 true/false 설정 가능)
+  // 여기서는 로그인한 유저의 이름(또는 이메일)과 게시글 작성자가 같으면 수정/삭제 버튼 노출
+  const isAuthor = user?.name === post.author || post.author === "Void User"; // "Void User"는 현재 로그인 데모 유저 이름
 
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8 pb-20">
@@ -71,28 +78,36 @@ export default function PostDetailPage() {
 
         <div className="flex items-center justify-between py-4 border-b border-border">
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">{post.author}</span>
+            <span className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-400 to-purple-400 flex items-center justify-center text-[10px] text-white font-bold">
+                    {post.author.charAt(0).toUpperCase()}
+                </div>
+                <span className="font-medium text-foreground">{post.author}</span>
+            </span>
             <span className="flex items-center gap-1">
               <Calendar className="w-4 h-4" />
               {post.date}
             </span>
           </div>
 
-          <div className="flex gap-2">
-            <Link 
-              href={`/board/${params.id}/edit`}
-              className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors"
-              title="글 수정"
-            >
-              <Edit className="w-5 h-5" />
-            </Link>
-            <button 
-              className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-full transition-colors"
-              title="삭제"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
-          </div>
+          {/* 작성자 본인일 경우에만 수정/삭제 버튼 표시 */}
+          {isAuthor && (
+            <div className="flex gap-2">
+              <Link 
+                href={`/board/${post.id}/edit`}
+                className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors"
+                title="글 수정"
+              >
+                <Edit className="w-5 h-5" />
+              </Link>
+              <button 
+                className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-full transition-colors"
+                title="삭제"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -116,12 +131,14 @@ export default function PostDetailPage() {
       {/* 댓글 섹션 */}
       <div className="border-t border-border pt-8">
         <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-          댓글 <span className="text-muted-foreground font-normal text-base">{post.comments.length}</span>
+          댓글 <span className="text-muted-foreground font-normal text-base">{typeof post.comments === 'number' ? post.comments : post.recentComments?.length || 0}</span>
         </h3>
 
         {/* 댓글 작성 폼 */}
         <div className="mb-8 flex gap-4">
-          <div className="w-10 h-10 rounded-full bg-muted shrink-0" />
+          <div className="w-10 h-10 rounded-full bg-muted shrink-0 flex items-center justify-center text-xs font-bold text-muted-foreground">
+             {user ? user.name.charAt(0).toUpperCase() : "?"}
+          </div>
           <div className="flex-1">
             <textarea 
               placeholder="댓글을 남겨보세요..."
@@ -137,10 +154,10 @@ export default function PostDetailPage() {
 
         {/* 댓글 목록 */}
         <div className="space-y-6">
-          {post.comments.map((comment) => (
-            <div key={comment.id} className="flex gap-4">
+          {(post.recentComments || []).map((comment: any) => (
+            <div key={comment.id || Math.random()} className="flex gap-4">
               <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold shrink-0">
-                {comment.user[0].toUpperCase()}
+                {(comment.user || "?").charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 space-y-1">
                 <div className="flex items-center justify-between">
