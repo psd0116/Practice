@@ -2,15 +2,19 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@/context/auth-context";
 
 export function LoginForm() {
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("로그인 시도:", email, password);
-    alert(`로그인 시도!\nID: ${email}\nPW: ${password}`);
+    // 간단한 유효성 검사 (실제로는 서버 통신 필요)
+    if (email && password) {
+      login(email);
+    }
   };
 
   return (
