@@ -77,6 +77,7 @@ export default function ProfileEditPage() {
       // Context 업데이트
       updateUser({ name: username, email, profileImage });
       alert("회원 정보가 수정되었습니다.");
+      router.push("/board");
     } catch (error) {
       console.error(error);
       alert("저장 중 오류가 발생했습니다.");
