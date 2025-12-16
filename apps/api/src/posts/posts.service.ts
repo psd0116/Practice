@@ -26,9 +26,13 @@ export class PostsService {
   }
 
   // 2. 전체 게시글 조회 (페이지네이션/검색 가능)
-  async findAll() {
+  async findAll(sort?: string) {
+    const orderBy = sort === 'popular' 
+      ? { likes: { _count: 'desc' as const } } 
+      : { createdAt: 'desc' as const };
+
     return this.prisma.post.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy,
       include: {
         author: {
           select: { id: true, username: true, profileImage: true }

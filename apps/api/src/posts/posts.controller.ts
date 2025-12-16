@@ -17,8 +17,8 @@ export class PostsController {
 
   // 2. 전체 게시글 조회 (공개)
   @Get()
-  findAll() {
-    return this.postsService.findAll();
+  findAll(@Query('sort') sort?: string) {
+    return this.postsService.findAll(sort);
   }
 
   // 3. 내 게시글 조회 (로그인 필요)

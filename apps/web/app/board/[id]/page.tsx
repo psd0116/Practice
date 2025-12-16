@@ -11,7 +11,7 @@ export default function PostDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { user } = useAuth(); // 현재 로그인한 사용자 정보 가져오기
-  const [post, setPost] = useState<any>(null);
+  const [post, setPost] = useState<any>(null);1
   const [comments, setComments] = useState<any[]>([]); // 댓글 목록
   const [newComment, setNewComment] = useState(""); // 새 댓글 입력
   const [isLiked, setIsLiked] = useState(false); // 좋아요 여부 (가정)
