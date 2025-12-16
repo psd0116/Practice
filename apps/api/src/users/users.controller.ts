@@ -7,6 +7,8 @@ import { PostsService } from '../posts/posts.service';
 
 // 책임: "유저 프로필 관련 요청 처리 - 조회, 수정"
 @Controller('users')
+// 책임: "유저 프로필 관련 요청 처리 - 조회, 수정"
+@Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
@@ -31,6 +33,10 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('stats')
   async getStats(@Request() req: any) {
-    return this.postsService.getUserStats(req.user.userId);
+    const stats = await this.postsService.getUserStats(req.user.userId);
+    
+    return {
+      ...stats
+    };
   }
 }

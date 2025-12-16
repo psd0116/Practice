@@ -7,11 +7,28 @@ import { motion, AnimatePresence } from "framer-motion";
 
 
 
+
+interface Comment {
+  user: string;
+  text: string;
+}
+
+interface Post {
+  id: number;
+  title: string;
+  content: string;
+  date: string;
+  likes: number;
+  comments: number;
+  category: string;
+  recentComments: Comment[];
+}
+
 export function MyPostList() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [categories, setCategories] = useState<string[]>(["All", "Notices", "Dev", "Design", "Daily"]);
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // 로컬 스토리지에서 카테고리 불러오기
@@ -45,10 +62,13 @@ export function MyPostList() {
           title: post.title,
           content: post.content,
           date: new Date(post.createdAt).toLocaleDateString(),
-          likes: 0,
-          comments: 0,
+          likes: post._count.likes,
+          comments: post._count.comments,
           category: post.category,
-          recentComments: [] // 댓글 기능 미구현
+          recentComments: post.comments.map((c: any) => ({
+            user: c.author.username,
+            text: c.content
+          }))
         }));
 
         setPosts(mappedPosts);
@@ -119,7 +139,7 @@ export function MyPostList() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.2 }}
-              className="group relative border border-transparent hover:border-gray-200 dark:hover:border-zinc-800 rounded-xl hover:shadow-md transition-all flex flex-col justify-between min-h-[180px] hover:z-50"
+              className="group relative border border-transparent hover:border-gray-200 dark:hover:border-zinc-800 rounded-xl hover:shadow-md transition-all flex flex-col justify-between min-h-45 hover:z-50"
             >
               <div className="p-5 flex flex-col h-full justify-between z-10 relative bg-white dark:bg-zinc-900 rounded-xl">
                 <div>
@@ -132,7 +152,7 @@ export function MyPostList() {
                           <Edit className="w-3.5 h-3.5" />
                         </button>
                         <button className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 rounded">
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-3.5 h-3.5" />  
                         </button>
                       </div>
                     )}
@@ -171,7 +191,7 @@ export function MyPostList() {
                   <MessageSquare className="w-3 h-3" />
                   최신 댓글
                 </div>
-                <div className="space-y-3 max-h-[200px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-zinc-700 pr-1">
+                <div className="space-y-3 max-h-50 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-zinc-700 pr-1">
                   {post.recentComments.map((comment, idx) => (
                     <div key={idx} className="text-sm border-b border-gray-50 dark:border-zinc-800/50 pb-2 last:border-0 pl-1">
                       <div className="flex items-center gap-2 mb-1">

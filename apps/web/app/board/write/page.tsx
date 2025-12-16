@@ -2,9 +2,17 @@
 
 import { PostEditor } from "@/components/board/post-editor";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function WritePage() {
   const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      router.push("/login"); // 로그인 안했으면 쫓아내기
+    }
+  }, [router]);
 
   const handleCreatePost = async (title: string, content: string, category: string) => {
     try {

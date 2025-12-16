@@ -53,7 +53,7 @@ export function ActivityStats() {
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, delay: index * 0.1 }}
             viewport={{ once: true }}
-            className="p-6 rounded-none border border-border bg-background hover:bg-muted/30 transition-colors flex flex-col items-center justify-center gap-2 aspect-[4/3]"
+            className="p-6 rounded-none border border-border bg-background hover:bg-muted/30 transition-colors flex flex-col items-center justify-center gap-2 aspect-4/3"
           >
             <stat.icon className="w-8 h-8 text-muted-foreground stroke-[1.5]" />
             <div className="text-4xl font-bold tracking-tighter">{stat.value}</div>

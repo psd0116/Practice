@@ -44,11 +44,25 @@ export class AuthService {
   // 2. 로그인 검증 (아이디/비번 검사)
   async validateUser(loginDto: LoginDto) {
     const { email, password } = loginDto;
+    // Simple file logger
+    const log = (msg: string) => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      require('fs').appendFileSync('/Users/min/Desktop/Practice/apps/api/auth-debug.log', new Date().toISOString() + ' ' + msg + '\n');
+    };
+
+    log(`Validating user: ${email}`);
     const user = await this.prisma.user.findUnique({ where: { email } });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-      const { password, ...result } = user;
-      return result;
+    if (user) {
+      log(`User found: ${user.id}, Hash: ${user.password.substring(0, 10)}...`);
+      const isMatch = await bcrypt.compare(password, user.password);
+      log(`Password match: ${isMatch}`);
+      if (isMatch) {
+        const { password, ...result } = user;
+        return result;
+      }
+    } else {
+      log(`User NOT found`);
     }
     return null;
   }
@@ -62,6 +76,7 @@ export class AuthService {
         id: user.id,
         email: user.email,
         username: user.username,
+        profileImage: user.profileImage,
       },
     };
   }

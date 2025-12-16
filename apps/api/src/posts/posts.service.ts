@@ -51,6 +51,13 @@ export class PostsService {
         },
         _count: {
           select: { comments: true, likes: true }
+        },
+        comments: {
+          take: 3,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            author: { select: { username: true } }
+          }
         }
       }
     });

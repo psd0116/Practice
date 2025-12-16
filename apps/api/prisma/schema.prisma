@@ -26,7 +26,8 @@ model User {
   // 관계 설정
   posts        Post[] // 유저가 작성한 게시글들
   comments     Comment[]
-  likes        Like[]
+
+  likes Like[]
 }
 
 // 2. Post 모델 (게시글 저장)

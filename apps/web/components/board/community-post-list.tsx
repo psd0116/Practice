@@ -26,9 +26,10 @@ export function CommunityPostList() {
           title: post.title,
           content: post.content,
           author: post.author.username || "Unknown",
+          authorImage: post.author.profileImage, // 프로필 이미지 추가
           date: new Date(post.createdAt).toLocaleDateString(),
-          likes: 0, // 아직 구현 안됨
-          comments: 0, // 아직 구현 안됨
+          likes: post._count?.likes || 0,
+          comments: post._count?.comments || 0,
           category: post.category
         }));
 
@@ -112,15 +113,23 @@ export function CommunityPostList() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.2 }}
-                  className="group relative border border-transparent hover:border-gray-200 dark:hover:border-zinc-800 rounded-xl hover:shadow-md transition-all flex flex-col justify-between min-h-[220px] hover:z-50"
+                  className="group relative border border-transparent hover:border-gray-200 dark:hover:border-zinc-800 rounded-xl hover:shadow-md transition-all flex flex-col justify-between min-h-55 hover:z-50"
                 >
                   <div className="p-5 flex flex-col h-full justify-between z-10 relative bg-white dark:bg-zinc-900 rounded-xl">
                     <div>
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-400 to-purple-400 flex items-center justify-center text-[10px] text-white font-bold shadow-sm">
+                           {post.authorImage ? (
+                             <img 
+                               src={post.authorImage} 
+                               alt={post.author} 
+                               className="w-6 h-6 rounded-full object-cover border border-gray-200 dark:border-zinc-700 shadow-sm"
+                             />
+                           ) : (
+                            <div className="w-6 h-6 rounded-full bg-linear-to-tr from-blue-400 to-purple-400 flex items-center justify-center text-[10px] text-white font-bold shadow-sm">
                                 {post.author.charAt(0).toUpperCase()}
                             </div>
+                           )}
                             <span className="text-xs font-medium text-foreground opacity-80">{post.author}</span>
                         </div>
                         <span className="text-xs text-gray-400">{post.date}</span>

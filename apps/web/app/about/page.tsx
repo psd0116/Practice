@@ -2,19 +2,18 @@ import Link from "next/link";
 import { AboutFeatureSection } from "../../components/about/about-feature-section";
 import { PopularPostsCard } from "../../components/about/popular-posts-card";
 import { ActivityStats } from "../../components/about/activity-stats";
-import { AchievementsBadges } from "../../components/about/achievements-badges";
+
+
+import { StarryBackground } from "../../components/home/starry-background";
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-primary selection:text-primary-foreground">
-      {/* 배경 그리드 장식 (선택 사항) */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]" 
-           style={{ backgroundImage: 'linear-gradient(#888 1px, transparent 1px), linear-gradient(90deg, #888 1px, transparent 1px)', backgroundSize: '40px 40px' }} 
-      />
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-primary selection:text-primary-foreground relative">
+      <StarryBackground />
 
       {/* 헤더 */}
       <header className="fixed top-0 left-0 right-0 z-50 px-4 py-6 mix-blend-difference text-white">
-        <div className="max-w-[1920px] mx-auto flex justify-between items-center">
+        <div className="max-w-480 mx-auto flex justify-between items-center">
           <Link
             href="/"
             className="text-sm font-medium tracking-widest uppercase hover:opacity-50 transition-opacity"
@@ -48,13 +47,13 @@ export default function AboutPage() {
 
       {/* 메인 콘텐츠 */}
       <main className="px-4 pb-32">
-        <div className="max-w-[1400px] mx-auto">
+        <div className="max-w-350 mx-auto">
 
           {/* 섹션 1: [이미지] - [인기 게시글] */}
           <AboutFeatureSection
             direction="left"
-            imageUrl="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=1000&fit=crop"
-            imageAlt="Deep Space"
+            imageUrl="/about/popular-posts.png"
+            imageAlt="Deep Space Network"
           >
             <PopularPostsCard />
           </AboutFeatureSection>
@@ -62,20 +61,13 @@ export default function AboutPage() {
           {/* 섹션 2: [활동 통계] - [이미지] */}
           <AboutFeatureSection
             direction="right"
-            imageUrl="https://images.unsplash.com/photo-1518066000714-58c45f1a2c0a?w=800&h=1000&fit=crop"
-            imageAlt="Abstract Void"
+            imageUrl="/about/activity-stats.png"
+            imageAlt="Void Activity Stats"
           >
             <ActivityStats />
           </AboutFeatureSection>
 
-          {/* 섹션 3: [이미지] - [뱃지/업적] */}
-          <AboutFeatureSection
-            direction="left"
-            imageUrl="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&h=1000&fit=crop"
-            imageAlt="Constellations"
-          >
-            <AchievementsBadges />
-          </AboutFeatureSection>
+
 
         </div>
       </main>

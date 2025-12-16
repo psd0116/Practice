@@ -4,14 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/context/auth-context";
+import { Users } from "lucide-react";
 
 export function SiteLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isLoggedIn, logout, user } = useAuth();
   const isAboutPage = pathname === "/about";
   const isLandingPage = pathname === "/";
-  // 마이 페이지 관련 경로인지 확인 (board/*)
-  const isMyBoardPage = pathname.startsWith("/board");
+  // 마이 페이지 관련 경로인지 확인 (board/*) -> 메인 마이페이지만 로그아웃 표시
+  const isMyBoardPage = pathname === "/board";
 
   if (isAboutPage) {
     return <main className="flex-1 w-full">{children}</main>;
@@ -26,13 +27,22 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
         <h1 className="text-2xl font-bold tracking-tighter z-10">
           <Link href="/">Void*</Link>
         </h1>
-        
-        {/* [중앙] 메인 네비게이션 (absolute로 정중앙 고정) */}
-        <nav className="absolute left-1/2 -translate-x-1/2 flex gap-6 items-center text-sm font-medium">
-          <Link href="/community" className="text-muted-foreground hover:text-foreground transition-colors">
-            커뮤니티
-          </Link>
-        </nav>
+
+        {/* [중앙] 메인 네비게이션 (Landing 제외) */}
+        {!isLandingPage && (
+          <nav className="absolute left-1/2 -translate-x-1/2 flex gap-6 items-center">
+            <Link 
+              href="/community" 
+              className="group relative flex items-center gap-2 px-5 py-2.5 rounded-full bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:border-black dark:hover:border-white transition-all duration-300 shadow-sm hover:shadow-md"
+            >
+              <div className="absolute inset-0 rounded-full bg-linear-to-r from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <Users className="w-4 h-4 text-gray-500 group-hover:text-indigo-600 dark:text-gray-400 dark:group-hover:text-indigo-400 transition-colors" />
+              <span className="text-sm font-semibold text-gray-600 group-hover:text-black dark:text-gray-300 dark:group-hover:text-white transition-colors relative z-10">
+                전체게시글
+              </span>
+            </Link>
+          </nav>
+        )}
 
         {/* [오른쪽] 유틸리티 버튼 (테마, 로그인/마이페이지/로그아웃) */}
         {/* z-10을 주어 화면이 작아져서 중앙 메뉴와 겹쳐도 클릭 가능하게 함 */}

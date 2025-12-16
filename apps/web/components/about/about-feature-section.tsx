@@ -31,7 +31,7 @@ export function AboutFeatureSection({
             order-1
           `}
         >
-          <div className="relative aspect-[4/5] md:aspect-square w-full overflow-hidden rounded-none">
+          <div className="relative aspect-4/5 md:aspect-square w-full overflow-hidden rounded-none">
             <motion.img
               src={imageUrl}
               alt={imageAlt}

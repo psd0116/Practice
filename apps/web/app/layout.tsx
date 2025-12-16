@@ -9,6 +9,9 @@ import { SiteLayout } from "@/components/about/site-layout";
 export const metadata: Metadata = {
   title: "Void*",
   description: "Anything can be here.",
+  icons: {
+    icon: "/icon.jpg",
+  },
 };
 
 export default function RootLayout({

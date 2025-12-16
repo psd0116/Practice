@@ -5,13 +5,24 @@ import Link from "next/link";
 import { ChevronLeft, Plus, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/auth-context";
+import { useRouter } from "next/navigation";
+
 
 export default function ProfileEditPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      router.push("/login"); // 로그인 안했으면 쫓아내기
+    }
+  }, [router]);
   const { user, updateUser } = useAuth();
   
   // 폼 상태
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   
   // 카테고리 상태 (로컬 스토리지 사용 예시)
   const [categories, setCategories] = useState<string[]>([]);
@@ -24,6 +35,7 @@ export default function ProfileEditPage() {
     if (user) {
       setUsername(user.name);
       setEmail(user.email);
+      setProfileImage(user.profileImage || null);
     }
     
     // 카테고리 로드 (예: localStorage 'user_categories')
@@ -44,7 +56,7 @@ export default function ProfileEditPage() {
       const token = localStorage.getItem("access_token");
       if (!token) return;
 
-      // 변경된 내용만 전송 (여기서는 간단히 다 보냄)
+      // 변경된 내용 전송 (이미지 포함)
       const response = await fetch("http://localhost:4000/users/me", {
         method: "PATCH",
         headers: {
@@ -53,7 +65,8 @@ export default function ProfileEditPage() {
         },
         body: JSON.stringify({
           username,
-          email
+          email,
+          profileImage // 이미지 데이터도 함께 전송
         })
       });
 
@@ -62,7 +75,7 @@ export default function ProfileEditPage() {
       }
 
       // Context 업데이트
-      updateUser({ name: username, email: email });
+      updateUser({ name: username, email, profileImage });
       alert("회원 정보가 수정되었습니다.");
     } catch (error) {
       console.error(error);
@@ -106,7 +119,10 @@ export default function ProfileEditPage() {
         <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl p-8 shadow-sm">
           <h2 className="text-xl font-bold mb-6">프로필 사진</h2>
           <div className="flex flex-col items-center">
-            <ProfileImageUpload />
+            <ProfileImageUpload 
+              currentImage={profileImage}
+              onImageSelected={setProfileImage}
+            />
           </div>
         </div>
 

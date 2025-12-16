@@ -235,8 +235,12 @@ export default function PostDetailPage() {
         <div className="flex items-center justify-between py-4 border-b border-border">
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-400 to-purple-400 flex items-center justify-center text-[10px] text-white font-bold">
-                    {post.author.username.charAt(0).toUpperCase()}
+                <div className="w-8 h-8 rounded-full bg-linear-to-tr from-blue-400 to-purple-400 flex items-center justify-center text-xs text-white font-bold overflow-hidden shadow-sm border border-black/5 dark:border-white/10">
+                    {post.author.profileImage ? (
+                      <img src={post.author.profileImage} alt={post.author.username} className="w-full h-full object-cover" />
+                    ) : (
+                      post.author.username.charAt(0).toUpperCase()
+                    )}
                 </div>
                 <span className="font-medium text-foreground">{post.author.username}</span>
             </span>
@@ -269,7 +273,7 @@ export default function PostDetailPage() {
       </div>
 
       {/* 본문 */}
-      <div className="prose dark:prose-invert max-w-none mb-12 min-h-[200px] whitespace-pre-wrap leading-relaxed text-lg">
+      <div className="prose dark:prose-invert max-w-none mb-12 min-h-50 whitespace-pre-wrap leading-relaxed text-lg">
         {post.content}
       </div>
 
@@ -318,7 +322,7 @@ export default function PostDetailPage() {
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="댓글을 남겨보세요..."
-              className="w-full bg-muted/30 border border-border rounded-xl p-4 min-h-[100px] focus:outline-none focus:border-primary transition-colors resize-none mb-2"
+              className="w-full bg-muted/30 border border-border rounded-xl p-4 min-h-25 focus:outline-none focus:border-primary transition-colors resize-none mb-2"
             />
             <div className="flex justify-end">
               <button 
