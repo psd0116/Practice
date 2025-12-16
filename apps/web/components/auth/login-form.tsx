@@ -36,7 +36,7 @@ export function LoginForm() {
       const data = await response.json();
       localStorage.setItem("access_token", data.access_token);
       // login 함수에 이메일, 이름, 프로필 이미지 전달
-      login(data.user.email, data.user.username, data.user.profileImage);
+      login(data.user.id, data.user.email, data.user.username, data.user.profileImage);
     } catch (err: any) {
       setError(err.message || "로그인 중 오류가 발생했습니다.");
     } finally {

@@ -2,17 +2,38 @@
 
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
+import { useEffect, useState } from "react";
 import { User, Users, Edit2, Heart, Sun, Moon, Bug, Zap, Ghost, Star } from "lucide-react";
 
 export function ProfileSection() {
   const { user } = useAuth();
-  
-  // 더미 통계 데이터
-  const stats = {
-    followers: 128,
-    following: 56,
-    posts: 42
-  };
+  const [stats, setStats] = useState({
+    postsCount: 0,
+    receivedLikesCount: 0,
+    receivedCommentsCount: 0
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!user) return;
+      try {
+        const token = localStorage.getItem("access_token");
+        const response = await fetch("http://localhost:4000/users/stats", {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setStats(data);
+        }
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      }
+    };
+
+    fetchStats();
+  }, [user]);
 
   if (!user) return null;
 
@@ -38,16 +59,16 @@ export function ProfileSection() {
             {/* 통계 */}
             <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="text-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors">
-                <span className="block text-lg font-bold">12</span>
-                <span className="text-xs text-gray-500">게시물</span>
+                <span className="block text-lg font-bold">{stats.postsCount}</span>
+                <span className="text-xs text-gray-500 whitespace-nowrap">게시물</span>
               </div>
               <div className="text-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors">
-                <span className="block text-lg font-bold">1.2k</span>
-                <span className="text-xs text-gray-500">팔로워</span>
+                <span className="block text-lg font-bold">{stats.receivedLikesCount}</span>
+                <span className="text-xs text-gray-500 whitespace-nowrap">받은 하트</span>
               </div>
               <div className="text-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors">
-                <span className="block text-lg font-bold">284</span>
-                <span className="text-xs text-gray-500">팔로잉</span>
+                <span className="block text-lg font-bold">{stats.receivedCommentsCount}</span>
+                <span className="text-xs text-gray-500 whitespace-nowrap">받은 댓글</span>
               </div>
             </div>
 

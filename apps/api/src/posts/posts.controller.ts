@@ -47,4 +47,11 @@ export class PostsController {
   remove(@Request() req: any, @Param('id') id: string) {
     return this.postsService.remove(+id, req.user.userId);
   }
+
+  // 7. 좋아요 토글
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/like')
+  toggleLike(@Request() req: any, @Param('id') id: string) {
+    return this.postsService.toggleLike(+id, req.user.userId);
+  }
 }

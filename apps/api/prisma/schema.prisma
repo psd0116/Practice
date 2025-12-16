@@ -16,15 +16,17 @@ datasource db {
 
 // 1. User 모델 (회원 정보 저장)
 model User {
-  id           Int      @id @default(autoincrement()) // 고유 ID (자동 증가)
-  email        String   @unique // 이메일 (중복 불가능, 로그인 ID로 사용)
+  id           Int       @id @default(autoincrement()) // 고유 ID (자동 증가)
+  email        String    @unique // 이메일 (중복 불가능, 로그인 ID로 사용)
   password     String // 비밀번호 (암호화하여 저장)
   username     String? // 닉네임 (선택 사항)
   profileImage String? // 프로필 사진 URL
-  createdAt    DateTime @default(now()) // 가입 시간 (자동 생성)
-  updatedAt    DateTime @updatedAt // 수정 시간 (자동 업데이트)
+  createdAt    DateTime  @default(now()) // 가입 시간 (자동 생성)
+  updatedAt    DateTime  @updatedAt // 수정 시간 (자동 업데이트)
   // 관계 설정
-  posts Post[] // 유저가 작성한 게시글들
+  posts        Post[] // 유저가 작성한 게시글들
+  comments     Comment[]
+  likes        Like[]
 }
 
 // 2. Post 모델 (게시글 저장)
@@ -41,4 +43,41 @@ model Post {
   // 작성자 관계
   authorId Int
   author   User @relation(fields: [authorId], references: [id])
+
+  // 관계 설정
+  comments Comment[]
+  likes    Like[]
+}
+
+// 3. Comment 모델 (댓글)
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 게시글 관계
+  postId Int
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  // 작성자 관계
+  authorId Int
+  author   User @relation(fields: [authorId], references: [id])
+}
+
+// 4. Like 모델 (좋아요)
+model Like {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  // 게시글 관계
+  postId Int
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  // 유저 관계
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  // 한 유저가 한 게시글에 한 번만 좋아요 가능
+  @@unique([postId, userId])
 }

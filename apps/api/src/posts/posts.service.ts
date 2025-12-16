@@ -17,6 +17,9 @@ export class PostsService {
       include: {
         author: {
           select: { id: true, username: true, email: true, profileImage: true }
+        },
+        _count: {
+          select: { comments: true, likes: true }
         }
       }
     });
@@ -29,6 +32,9 @@ export class PostsService {
       include: {
         author: {
           select: { id: true, username: true, profileImage: true }
+        },
+        _count: {
+          select: { comments: true, likes: true }
         }
       }
     });
@@ -42,6 +48,9 @@ export class PostsService {
       include: {
         author: {
           select: { id: true, username: true, profileImage: true }
+        },
+        _count: {
+          select: { comments: true, likes: true }
         }
       }
     });
@@ -54,7 +63,11 @@ export class PostsService {
       include: {
         author: {
           select: { id: true, username: true, profileImage: true }
-        }
+        },
+        _count: {
+          select: { comments: true, likes: true }
+        },
+        likes: true // 내가 좋아요 했는지 확인용 (Controller에서 필터링하거나 여기서 처리)
       }
     });
 
@@ -96,5 +109,71 @@ export class PostsService {
     return this.prisma.post.delete({
       where: { id },
     });
+  }
+
+  // 7. 좋아요 토글
+  async toggleLike(postId: number, userId: number) {
+    const existingLike = await this.prisma.like.findUnique({
+      where: {
+        postId_userId: {
+          postId,
+          userId,
+        },
+      },
+    });
+
+    if (existingLike) {
+      // 이미 좋아요 했으면 취소
+      await this.prisma.like.delete({
+        where: {
+          postId_userId: {
+            postId,
+            userId,
+          },
+        },
+      });
+      return { liked: false };
+    } else {
+      // 좋아요 추가
+      await this.prisma.like.create({
+        data: {
+          postId,
+          userId,
+        },
+      });
+      return { liked: true };
+    }
+  }
+
+  // 8. 마이페이지 통계 (작성글 수, 받은 좋아요 수, 받은 댓글 수)
+  async getUserStats(userId: number) {
+    // 1. 내가 쓴 글 개수
+    const postsCount = await this.prisma.post.count({
+      where: { authorId: userId },
+    });
+
+    // 2. 받은 좋아요 수 (내가 쓴 글들에 달린 좋아요 합계)
+    const likesAggregate = await this.prisma.like.count({
+      where: {
+        post: {
+          authorId: userId,
+        },
+      },
+    });
+
+    // 3. 받은 댓글 수 (내가 쓴 글들에 달린 댓글 합계)
+    const commentsAggregate = await this.prisma.comment.count({
+      where: {
+        post: {
+          authorId: userId,
+        },
+      },
+    });
+
+    return {
+      postsCount,
+      receivedLikesCount: likesAggregate,
+      receivedCommentsCount: commentsAggregate,
+    };
   }
 }

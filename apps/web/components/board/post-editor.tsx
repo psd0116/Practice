@@ -8,7 +8,7 @@ interface PostEditorProps {
   initialTitle?: string;
   initialContent?: string;
   initialCategory?: string;
-  isDiditing?: boolean;
+  isEditing?: boolean;
   onSubmit: (title: string, content: string, category: string) => Promise<void>;
 }
 
@@ -16,7 +16,7 @@ export function PostEditor({
   initialTitle = "", 
   initialContent = "", 
   initialCategory = "",
-  isDiditing = false, 
+  isEditing = false, 
   onSubmit 
 }: PostEditorProps) {
   const router = useRouter();
@@ -58,7 +58,7 @@ export function PostEditor({
           뒤로가기
         </button>
         <h1 className="text-2xl font-bold">
-          {isDiditing ? "글 수정" : "새 글 작성"}
+          {isEditing ? "글 수정" : "새 글 작성"}
         </h1>
       </div>
 
@@ -125,7 +125,7 @@ export function PostEditor({
             ) : (
               <Save className="w-4 h-4" />
             )}
-            {isDiditing ? "수정 완료" : "저장"}
+            {isEditing ? "수정 완료" : "발행"}
           </button>
         </div>
       </form>
