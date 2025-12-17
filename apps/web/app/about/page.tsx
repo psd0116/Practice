@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { AboutFeatureSection } from "../../components/about/about-feature-section";
 import { PopularPostsCard } from "../../components/about/popular-posts-card";
-import { ActivityStats } from "../../components/about/activity-stats";
-
-
+import { ActivityStats } from "../../components/about/activity-stats"
 import { StarryBackground } from "../../components/home/starry-background";
 
 export default function AboutPage() {

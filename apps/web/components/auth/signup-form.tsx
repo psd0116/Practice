@@ -1,4 +1,4 @@
-"use client"; // 브라우저에서 동작하는 코드 필수
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";

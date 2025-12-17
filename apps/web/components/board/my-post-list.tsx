@@ -53,7 +53,11 @@ export function MyPostList() {
           }
         });
 
-        if (!response.ok) throw new Error("Failed to fetch my posts");
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Fetch Error:", response.status, response.statusText, errorText);
+          throw new Error(`Failed to fetch my posts: ${response.status} ${errorText}`);
+        }
         const data = await response.json();
 
         // 매핑
