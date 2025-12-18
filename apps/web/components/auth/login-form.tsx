@@ -45,8 +45,12 @@ export function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-sm space-y-8">
-      <div className="text-center">
+    <div className="flex-1 flex items-center justify-center p-4">
+      <div className="w-full max-w-md p-8 rounded-2xl glass space-y-8 relative overflow-hidden">
+        {/* Subtle inner glow */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-white/20 to-transparent" />
+        
+        <div className="text-center relative z-10">
         <h2 className="text-3xl font-bold tracking-tight">로그인</h2>
         <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
           Void* 계정으로 계속하기
@@ -62,7 +66,7 @@ export function LoginForm() {
               name="email"
               type="email"
               required
-              className="relative block w-full rounded-md border-0 py-3 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-black dark:bg-gray-900 dark:text-white dark:ring-gray-700 sm:text-sm sm:leading-6"
+              className="relative block w-full rounded-xl border-0 py-3 px-4 text-gray-900 bg-white/40 dark:bg-black/20 backdrop-blur-sm ring-1 ring-inset ring-gray-300/50 placeholder:text-gray-500 focus:z-10 focus:ring-2 focus:ring-black dark:text-white dark:ring-white/10 dark:focus:ring-white sm:text-sm sm:leading-6 transition-all"
               placeholder="이메일 주소"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -75,7 +79,7 @@ export function LoginForm() {
               name="password"
               type="password"
               required
-              className="relative block w-full rounded-md border-0 py-3 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-black dark:bg-gray-900 dark:text-white dark:ring-gray-700 sm:text-sm sm:leading-6"
+              className="relative block w-full rounded-xl border-0 py-3 px-4 text-gray-900 bg-white/40 dark:bg-black/20 backdrop-blur-sm ring-1 ring-inset ring-gray-300/50 placeholder:text-gray-500 focus:z-10 focus:ring-2 focus:ring-black dark:text-white dark:ring-white/10 dark:focus:ring-white sm:text-sm sm:leading-6 transition-all"
               placeholder="비밀번호"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -88,22 +92,23 @@ export function LoginForm() {
           <div className="text-red-500 text-sm text-center">{error}</div>
         )}
 
-        <div>
+        <div className="relative z-10">
           <button
             type="submit"
             disabled={isLoading}
-            className="group relative flex w-full justify-center rounded-md bg-black px-3 py-3 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 disabled:opacity-50"
+            className="group relative flex w-full justify-center rounded-xl bg-black px-3 py-3 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 disabled:opacity-50 transition-all shadow-lg hover:shadow-black/20 dark:hover:shadow-white/20"
           >
             {isLoading ? "로그인 중..." : "로그인"}
           </button>
         </div>
       </form>
 
-      <div className="text-center text-sm">
+      <div className="text-center text-sm relative z-10">
         <Link href="/signup" className="font-medium text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white">
           계정이 없으신가요? 회원가입
         </Link>
       </div>
     </div>
+  </div>
   );
 }
